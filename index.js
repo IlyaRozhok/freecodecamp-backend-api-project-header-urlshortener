@@ -35,7 +35,17 @@ app.listen(port, function() {
 
 app.post("/api/shorturl", (req, res) => {
   const originalUrl = req.body.url;
-  const hostname = urlParser.parse(originalUrl).hostname;
+
+  if (!/^https?:\/\//i.test(originalUrl)) {
+    return res.json({ error: "invalid url" });
+  }
+
+  let hostname;
+  try {
+    hostname = urlParser.parse(originalUrl).hostname;
+  } catch (err) {
+    return res.json({ error: "invalid url" });
+  }
 
   dns.lookup(hostname, (err) => {
     if (err) return res.json({ error: "invalid url" });
